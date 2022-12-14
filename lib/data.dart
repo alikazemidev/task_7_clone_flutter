@@ -17,8 +17,12 @@ class Task extends HiveObject {
   });
 }
 
+@HiveType(typeId: 1)
 enum Priority {
+  @HiveField(0)
   low,
+  @HiveField(1)
   noraml,
+  @HiveField(2)
   high,
 }
