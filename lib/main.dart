@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todo_list_7_1/data.dart';
+import 'package:todo_list_7_1/edit_task_screen.dart';
 
 const taskBoxName = 'tasks';
 void main() async {
@@ -88,7 +89,7 @@ class _HomePageState extends State<HomePage> {
             context,
             MaterialPageRoute(
               builder: (context) {
-                return EditTaskScreen();
+                return EditTaskScreen(task: Task(),);
               },
             ),
           );
@@ -305,47 +306,7 @@ class MyCheckBox extends StatelessWidget {
   }
 }
 
-class EditTaskScreen extends StatelessWidget {
-  final TextEditingController _controller = TextEditingController();
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('add task'),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            final task = Task(
-              name: _controller.text,
-              priority: Priority.low,
-              isCompleted: false,
-            );
-            //Todo uncomment this
-            if (task.isInBox) {
-              task.save();
-            } else {
-              final Box<Task> box = Hive.box(taskBoxName);
-              box.add(task);
-            }
-            Navigator.pop(context);
-          },
-          label: Row(
-            children: [
-              Text('save changes'),
-              Icon(Icons.check),
-            ],
-          )),
-      body: Column(
-        children: [
-          TextField(
-            controller: _controller,
-            decoration: InputDecoration(
-              label: Text('Add a task for today...'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+
+
+
+
