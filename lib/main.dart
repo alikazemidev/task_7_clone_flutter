@@ -24,6 +24,9 @@ const primaryColor = Color(0xff794cff);
 const primaryContainerColor = Color(0xff5c0aff);
 const primaryTexColor = Color(0xff1d2830);
 const secondaryTexColor = Color(0xffafbed0);
+const normalPriority = Color(0xfff09819);
+const highPriority = primaryColor;
+const lowPriority = Color(0xff3bef1f1);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -31,6 +34,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -89,7 +93,9 @@ class _HomePageState extends State<HomePage> {
             context,
             MaterialPageRoute(
               builder: (context) {
-                return EditTaskScreen(task: Task(),);
+                return EditTaskScreen(
+                  task: Task(),
+                );
               },
             ),
           );
@@ -220,7 +226,7 @@ class _HomePageState extends State<HomePage> {
 
 class TaskItem extends StatefulWidget {
   const TaskItem({Key? key, required this.task}) : super(key: key);
-
+  static const double height = 74;
   final Task task;
 
   @override
@@ -232,6 +238,19 @@ class _TaskItemState extends State<TaskItem> {
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
 
+    final Color priorityColor;
+
+    switch (widget.task.priority!) {
+      case Priority.low:
+        priorityColor = lowPriority;
+        break;
+      case Priority.noraml:
+        priorityColor = normalPriority;
+        break;
+      case Priority.high:
+        priorityColor = highPriority;
+        break;
+    }
     return InkWell(
       onTap: () {
         setState(() {
@@ -241,7 +260,7 @@ class _TaskItemState extends State<TaskItem> {
       child: Container(
         margin: EdgeInsets.only(top: 10),
         padding: EdgeInsets.all(20),
-        height: 84,
+        height: TaskItem.height,
         width: double.infinity,
         decoration: BoxDecoration(
           color: themeData.colorScheme.surface,
@@ -267,6 +286,17 @@ class _TaskItemState extends State<TaskItem> {
                       : null,
                   overflow: TextOverflow.ellipsis,
                 ),
+              ),
+            ),
+            Container(
+              height: TaskItem.height,
+              width: 5,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(8),
+                  bottomRight: Radius.circular(8),
+                ),
+                color: priorityColor,
               ),
             ),
           ],
@@ -305,8 +335,3 @@ class MyCheckBox extends StatelessWidget {
     );
   }
 }
-
-
-
-
-

@@ -31,10 +31,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         onPressed: () {
           final task = Task(
             name: _controller.text,
-            priority: Priority.low,
+            priority: widget.task.priority,
             isCompleted: false,
           );
-          //Todo uncomment this
           if (task.isInBox) {
             task.save();
           } else {
@@ -67,7 +66,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     },
                     lable: 'High',
                     isSelected: widget.task.priority == Priority.high,
-                    color: primaryColor,
+                    color: highPriority,
                   ),
                 ),
                 SizedBox(
@@ -83,7 +82,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     },
                     lable: 'Normal',
                     isSelected: widget.task.priority == Priority.noraml,
-                    color: Color(0xfff09819),
+                    color: normalPriority
                   ),
                 ),
                 SizedBox(
@@ -99,7 +98,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     },
                     lable: 'Low',
                     isSelected: widget.task.priority == Priority.low,
-                    color: Color(0xff3bef1f1),
+                    color: lowPriority,
                   ),
                 ),
               ],
@@ -107,12 +106,11 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             TextField(
               controller: _controller,
               decoration: InputDecoration(
-                label: Text('Add a task for today...'),
-                labelStyle: TextStyle(
-                  color: primaryTexColor,
-                  fontSize: 20,
-                )
-              ),
+                  label: Text('Add a task for today...'),
+                  labelStyle: TextStyle(
+                    color: primaryTexColor,
+                    fontSize: 20,
+                  )),
             ),
           ],
         ),
