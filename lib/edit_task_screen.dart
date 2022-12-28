@@ -13,7 +13,8 @@ class EditTaskScreen extends StatefulWidget {
 }
 
 class _EditTaskScreenState extends State<EditTaskScreen> {
-  final TextEditingController _controller = TextEditingController();
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.task.name);
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +30,15 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          final task = Task(
-            name: _controller.text,
-            priority: widget.task.priority,
-            isCompleted: false,
-          );
-          if (task.isInBox) {
-            task.save();
+          widget.task.name = _controller.text;
+          widget.task.priority = widget.task.priority;
+          widget.task.isCompleted = false;
+
+          if (widget.task.isInBox) {
+            widget.task.save();
           } else {
             final Box<Task> box = Hive.box(taskBoxName);
-            box.add(task);
+            box.add(widget.task);
           }
           Navigator.pop(context);
         },
@@ -75,15 +75,14 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 Flexible(
                   flex: 1,
                   child: PriorityCheckBox(
-                    onTap: () {
-                      setState(() {
-                        widget.task.priority = Priority.noraml;
-                      });
-                    },
-                    lable: 'Normal',
-                    isSelected: widget.task.priority == Priority.noraml,
-                    color: normalPriority
-                  ),
+                      onTap: () {
+                        setState(() {
+                          widget.task.priority = Priority.noraml;
+                        });
+                      },
+                      lable: 'Normal',
+                      isSelected: widget.task.priority == Priority.noraml,
+                      color: normalPriority),
                 ),
                 SizedBox(
                   width: 8,
