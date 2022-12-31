@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todo_list_7_1/data.dart';
@@ -171,54 +172,84 @@ class _HomePageState extends State<HomePage> {
               child: ValueListenableBuilder<Box<Task>>(
                 valueListenable: box.listenable(),
                 builder: (context, box, child) {
-                  return ListView.builder(
-                    itemCount: box.values.length + 1,
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 100),
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Today',
-                                  style: themeData.textTheme.headline6!.apply(
-                                    fontSizeFactor: 0.9,
+                  if (box.isNotEmpty) {
+                    return ListView.builder(
+                      itemCount: box.values.length + 1,
+                      padding: EdgeInsets.fromLTRB(16, 16, 16, 100),
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Today',
+                                    style: themeData.textTheme.headline6!.apply(
+                                      fontSizeFactor: 0.9,
+                                    ),
                                   ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(top: 4),
-                                  width: 100,
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    color: themeData.colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                )
-                              ],
-                            ),
-                            Directionality(
-                              textDirection: TextDirection.rtl,
-                              child: ElevatedButton.icon(
-                                onPressed: () {},
-                                label: Text('Delete All'),
-                                icon: Icon(CupertinoIcons.delete),
+                                  Container(
+                                    margin: EdgeInsets.only(top: 4),
+                                    width: 100,
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      color: themeData.colorScheme.primary,
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  )
+                                ],
                               ),
-                            ),
-                          ],
-                        );
-                      }
-                      final task = box.values.toList()[index - 1];
-                      return TaskItem(task: task);
-                    },
-                  );
+                              Directionality(
+                                textDirection: TextDirection.rtl,
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    box.clear();
+                                  },
+                                  label: Text('Delete All'),
+                                  icon: Icon(CupertinoIcons.delete),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                        final task = box.values.toList()[index - 1];
+                        return TaskItem(task: task);
+                      },
+                    );
+                  } else {
+                    return EmptyState();
+                  }
                 },
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class EmptyState extends StatelessWidget {
+  const EmptyState({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            'assets/empty_state.svg',
+            width: 200,
+            height: 200,
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Text('your task list is empty'),
+        ],
       ),
     );
   }
@@ -252,6 +283,9 @@ class _TaskItemState extends State<TaskItem> {
         break;
     }
     return InkWell(
+      onLongPress: () {
+        widget.task.delete();
+      },
       onTap: () {
         Navigator.push(
           context,
@@ -290,7 +324,6 @@ class _TaskItemState extends State<TaskItem> {
               child: Text(
                 widget.task.name!,
                 style: TextStyle(
-                
                   decoration: widget.task.isCompleted!
                       ? TextDecoration.lineThrough
                       : null,
