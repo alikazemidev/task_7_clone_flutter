@@ -53,6 +53,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
+          floatingLabelBehavior: FloatingLabelBehavior.never,
           labelStyle: TextStyle(
             color: secondaryTexColor,
           ),
@@ -74,14 +75,10 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomePage extends StatelessWidget {
+  final TextEditingController _controller = TextEditingController();
+  final ValueNotifier<String> searchKeywordNotifier = ValueNotifier('');
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final box = Hive.box<Task>(taskBoxName);
@@ -156,6 +153,10 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                       child: TextField(
+                        onChanged: (value) {
+                          searchKeywordNotifier.value = _controller.text;
+                        },
+                        controller: _controller,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.all(15),
                           label: Text('search task...'),
@@ -169,58 +170,77 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Expanded(
-              child: ValueListenableBuilder<Box<Task>>(
-                valueListenable: box.listenable(),
-                builder: (context, box, child) {
-                  if (box.isNotEmpty) {
-                    return ListView.builder(
-                      itemCount: box.values.length + 1,
-                      padding: EdgeInsets.fromLTRB(16, 16, 16, 100),
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+              child: ValueListenableBuilder<String>(
+                valueListenable: searchKeywordNotifier,
+                builder: (context, value, child) {
+                  return ValueListenableBuilder<Box<Task>>(
+                    valueListenable: box.listenable(),
+                    builder: (context, box, child) {
+                      final List<Task> items;
+                      if (_controller.text.isEmpty) {
+                        items = box.values.toList();
+                      } else {
+                        items = box.values
+                            .where(
+                              (task) => task.name!.contains(_controller.text),
+                            )
+                            .toList();
+                      }
+                      if (items.isNotEmpty) {
+                        return ListView.builder(
+                          itemCount: items.length + 1,
+                          padding: EdgeInsets.fromLTRB(16, 16, 16, 100),
+                          itemBuilder: (context, index) {
+                            if (index == 0) {
+                              return Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    'Today',
-                                    style: themeData.textTheme.headline6!.apply(
-                                      fontSizeFactor: 0.9,
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Today',
+                                        style: themeData.textTheme.headline6!
+                                            .apply(
+                                          fontSizeFactor: 0.9,
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 4),
+                                        width: 100,
+                                        height: 4,
+                                        decoration: BoxDecoration(
+                                          color: themeData.colorScheme.primary,
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Directionality(
+                                    textDirection: TextDirection.rtl,
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        box.clear();
+                                      },
+                                      label: Text('Delete All'),
+                                      icon: Icon(CupertinoIcons.delete),
                                     ),
                                   ),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 4),
-                                    width: 100,
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: themeData.colorScheme.primary,
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                  )
                                 ],
-                              ),
-                              Directionality(
-                                textDirection: TextDirection.rtl,
-                                child: ElevatedButton.icon(
-                                  onPressed: () {
-                                    box.clear();
-                                  },
-                                  label: Text('Delete All'),
-                                  icon: Icon(CupertinoIcons.delete),
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                        final task = box.values.toList()[index - 1];
-                        return TaskItem(task: task);
-                      },
-                    );
-                  } else {
-                    return EmptyState();
-                  }
+                              );
+                            }
+                            final task = items[index - 1];
+                            return TaskItem(task: task);
+                          },
+                        );
+                      } else {
+                        return EmptyState();
+                      }
+                    },
+                  );
                 },
               ),
             ),
