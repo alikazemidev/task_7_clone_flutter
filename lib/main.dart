@@ -1,16 +1,20 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
+import 'package:provider/provider.dart';
 import 'package:todo_list_7_1/data/data.dart';
-import 'package:todo_list_7_1/screens/edit/edit_task_screen.dart';
+import 'package:todo_list_7_1/data/repo/repositry.dart';
+import 'package:todo_list_7_1/data/source/hive_task_source.dart';
 import 'package:todo_list_7_1/screens/home/home_screen.dart';
-import 'package:todo_list_7_1/widgets.dart';
 
 const taskBoxName = 'tasks';
 void main() async {
+  // final Repository<Task> repository = Repository(
+  //   HiveTaskSource(
+  //     box: Hive.box(taskBoxName),
+  //   ),
+  // );
   await Hive.initFlutter();
   Hive.registerAdapter(TaskAdapter());
   Hive.registerAdapter(PriorityAdapter());
@@ -19,7 +23,16 @@ void main() async {
     SystemUiOverlayStyle(statusBarColor: primaryContainerColor),
   );
   runApp(
-    const MyApp(),
+    ChangeNotifierProvider<Repository<Task>>(
+      create: (context) {
+        return Repository<Task>(
+          HiveTaskSource(
+            box: Hive.box(taskBoxName),
+          ),
+        );
+      },
+      child: const MyApp(),
+    ),
   );
 }
 
@@ -76,5 +89,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-

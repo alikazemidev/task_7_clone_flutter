@@ -5,7 +5,7 @@ import 'package:todo_list_7_1/data/source/source.dart';
 class HiveTaskSource implements DataSource<Task> {
   final Box<Task> box;
 
-  HiveTaskSource(this.box);
+  HiveTaskSource({required this.box});
 
   @override
   Future<Task> createOrUpdate(Task data) async {
@@ -38,7 +38,13 @@ class HiveTaskSource implements DataSource<Task> {
   }
 
   @override
-  Future<List<Task>> getAll({String searchKeyword = ''}) async{
-    return box.values.toList();
+  Future<List<Task>> getAll({String searchKeyword = ''}) async {
+    if (searchKeyword.isNotEmpty) {
+      return box.values
+          .where((element) => element.name!.contains(searchKeyword))
+          .toList();
+    } else {
+      return box.values.toList();
+    }
   }
 }
